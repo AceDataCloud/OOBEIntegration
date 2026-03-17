@@ -14,6 +14,7 @@
     "@langchain/core": "^0.3.80",
     "@modelcontextprotocol/sdk": "^1.27.1",
     "@oobe-protocol-labs/synapse-client-sdk": "^2.0.5",
+    "@oobe-protocol-labs/synapse-sap-sdk": "^0.4.1",
     "@solana/web3.js": "^1.95.0",
     "dotenv": "^16.4.0",
     "zod": "^4.3.6"

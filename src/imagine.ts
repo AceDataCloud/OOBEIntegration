@@ -16,7 +16,9 @@ config();
 
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
-const { McpClientBridge } = require("@oobe-protocol-labs/synapse-client-sdk/ai/mcp");
+const {
+  McpClientBridge,
+} = require("@oobe-protocol-labs/synapse-client-sdk/ai/mcp");
 
 const TOKEN = process.env.ACEDATACLOUD_API_TOKEN;
 
@@ -48,7 +50,7 @@ async function main() {
     command: "mcp-midjourney",
     args: ["--transport", "stdio"],
     env: { ACEDATACLOUD_API_TOKEN: TOKEN },
-    timeout: 300_000,  // 5min — Midjourney generation takes 30-120s
+    timeout: 300_000, // 5min — Midjourney generation takes 30-120s
   });
 
   const status = bridge.getStatus("acedata-midjourney");
@@ -56,9 +58,7 @@ async function main() {
 
   // ─── Step 3: List available tools ───
   const tools = bridge.getServerTools("acedata-midjourney");
-  console.log(
-    `  [3/5] Discovered ${tools.length} tools from mcp-midjourney:`,
-  );
+  console.log(`  [3/5] Discovered ${tools.length} tools from mcp-midjourney:`);
   for (const tool of tools) {
     console.log(`         - ${tool.name}`);
   }
@@ -72,11 +72,15 @@ async function main() {
 
   const start = Date.now();
 
-  const result = await bridge.callTool("acedata-midjourney", "midjourney_imagine", {
-    prompt,
-    mode: "fast",
-    timeout: 480,
-  });
+  const result = await bridge.callTool(
+    "acedata-midjourney",
+    "midjourney_imagine",
+    {
+      prompt,
+      mode: "fast",
+      timeout: 480,
+    },
+  );
 
   const elapsed = ((Date.now() - start) / 1000).toFixed(1);
 
@@ -93,7 +97,9 @@ async function main() {
           console.log(`  Success:     ${data.success}`);
           console.log(`  Task ID:     ${data.task_id}`);
           console.log(`  Image ID:    ${data.image_id}`);
-          console.log(`  Size:        ${data.raw_image_width}×${data.raw_image_height}`);
+          console.log(
+            `  Size:        ${data.raw_image_width}×${data.raw_image_height}`,
+          );
           console.log(`  Image URL:   ${data.image_url}`);
           if (data.actions?.length) {
             console.log(`  Actions:     ${data.actions.join(", ")}`);
@@ -110,7 +116,9 @@ async function main() {
   }
 
   console.log();
-  console.log("  Flow: Synapse McpClientBridge → stdio → mcp-midjourney → api.acedata.cloud");
+  console.log(
+    "  Flow: Synapse McpClientBridge → stdio → mcp-midjourney → api.acedata.cloud",
+  );
   console.log();
 
   // ─── Cleanup ───

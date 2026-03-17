@@ -32,7 +32,7 @@ const X402_FLOW = `
 │       │                                       │                     │
 │       ◄───────────── 200 OK + response ───────┘                     │
 │                                                                     │
-│  Supported chains: Base (EVM), Solana                               │
+│  Supported chains: Base (EVM), Solana, SKALE (zero gas fees)        │
 │  Currency: USDC                                                     │
 │  Facilitator: https://facilitator.acedata.cloud                     │
 └─────────────────────────────────────────────────────────────────────┘
@@ -46,7 +46,7 @@ import { X402Paywall } from '@oobe-protocol-labs/synapse-client-sdk/x402';
 const paywall = new X402Paywall({
   facilitatorUrl: 'https://facilitator.acedata.cloud',
   // The facilitator supports /.well-known/x402 discovery
-  chains: ['base', 'solana'],
+  chains: ['base', 'solana', 'skale'],
   currency: 'USDC',
 });
 
@@ -73,6 +73,7 @@ const x402 = new X402Client({
   wallet: agent.wallet,  // Synapse agent's Solana wallet (has USDC)
   facilitatorUrl: 'https://facilitator.acedata.cloud',
   maxAutoPayment: '0.01',  // Auto-approve up to $0.01 per request
+  preferredChain: 'skale', // Zero gas fees on SKALE!
 });
 
 // Transparent payment — agent just makes a normal HTTP call
@@ -101,7 +102,7 @@ const FACILITATOR_CODE = `
 {
   "facilitatorAddress": "0x...",        // Base (EVM) settlement address
   "solanaAddress": "FaC1...",           // Solana settlement address
-  "supportedChains": ["base", "solana"],
+  "supportedChains": ["base", "solana", "skale"],
   "supportedCurrencies": ["USDC"],
   "endpoints": {
     "supported": "/supported",
@@ -116,7 +117,7 @@ const { SynapseClient } = require('@oobe-protocol-labs/synapse-client-sdk');
 const client = new SynapseClient({ rpcUrl });
 client.registerFacilitator({
   url: 'https://facilitator.acedata.cloud',
-  chains: ['base', 'solana'],
+  chains: ['base', 'solana', 'skale'],
   priority: 1,  // preferred facilitator
 });
 `;
@@ -153,13 +154,14 @@ async function main() {
   console.log("=".repeat(70));
   console.log();
   console.log("  AceDataCloud Facilitator: https://facilitator.acedata.cloud");
-  console.log("  Supported Chains:         Base (EVM) + Solana");
+  console.log("  Supported Chains:         Base (EVM) + Solana + SKALE (zero gas)");
   console.log("  Currency:                 USDC");
   console.log();
   console.log("  Key Benefits:");
   console.log("  • Synapse agents pay per-call with USDC — no API keys needed");
   console.log("  • AceDataCloud's existing facilitator handles settlement");
   console.log("  • Solana settlement takes ~400ms (vs minutes on EVM L1)");
+  console.log("  • SKALE settlement has zero gas fees — ideal for micropayments");
   console.log("  • $ACE token holders get discounted rates via CoinPolicy");
   console.log(
     "  • Agent wallets can hold both USDC (payments) + $ACE (discounts)",

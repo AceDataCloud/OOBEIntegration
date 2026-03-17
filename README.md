@@ -164,7 +164,7 @@ Execute swaps (Jupiter/Raydium) → generate performance visual → post update
 
 ## x402 Payment Integration
 
-AceDataCloud runs a production x402 facilitator at `facilitator.acedata.cloud` supporting **Solana USDC** and **Base USDC**. This enables agents to pay per-request with USDC — no API keys needed:
+AceDataCloud runs a production x402 facilitator at `facilitator.acedata.cloud` supporting **Solana USDC**, **Base USDC**, and **SKALE Base USDC** (zero gas fees). This enables agents to pay per-request with USDC — no API keys needed:
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
@@ -187,7 +187,7 @@ AceDataCloud runs a production x402 facilitator at `facilitator.acedata.cloud` s
 │       │                                       │                     │
 │       ◄───────────── 200 OK + response ───────┘                     │
 │                                                                     │
-│  Supported chains: Base (EVM), Solana                               │
+│  Supported chains: Base (EVM), Solana, SKALE (zero gas fees)        │
 │  Currency: USDC                                                     │
 │  Facilitator: https://facilitator.acedata.cloud                     │
 └─────────────────────────────────────────────────────────────────────┘
@@ -199,7 +199,7 @@ import { X402Paywall } from '@oobe-protocol-labs/synapse-client-sdk/x402';
 
 const paywall = new X402Paywall({
   facilitatorUrl: 'https://facilitator.acedata.cloud',
-  chains: ['base', 'solana'],
+  chains: ['base', 'solana', 'skale'],
   currency: 'USDC',
 });
 
@@ -406,14 +406,14 @@ Payment Flow:
 │       │                                       │                     │
 │       ◄───────────── 200 OK + response ───────┘                     │
 │                                                                     │
-│  Supported chains: Base (EVM), Solana                               │
+│  Supported chains: Base (EVM), Solana, SKALE (zero gas fees)        │
 │  Currency: USDC                                                     │
 │  Facilitator: https://facilitator.acedata.cloud                     │
 └─────────────────────────────────────────────────────────────────────┘
 
 Integration Value:
   AceDataCloud Facilitator: https://facilitator.acedata.cloud
-  Supported Chains:         Base (EVM) + Solana
+  Supported Chains:         Base (EVM) + Solana + SKALE (zero gas)
   Currency:                 USDC
 
   Key Benefits:
