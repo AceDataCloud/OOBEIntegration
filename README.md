@@ -238,11 +238,61 @@ const response = await x402.fetch('https://api.acedata.cloud/v1/chat/completions
 cp .env.example .env  # add your ACEDATACLOUD_API_TOKEN
 npm install
 
+# Also install AceDataCloud MCP servers (Python)
+pip install mcp-midjourney mcp-suno mcp-serp
+
 # Run
+npm run imagine       # Live image generation via Synapse McpClientBridge → mcp-midjourney
 npm run bridge        # MCP bridge integration showcase
 npm run agent         # Agent toolkit with capability summary
 npm run x402          # x402 micropayment flow
 ```
+
+<details>
+<summary><strong>Output: Live Image Generation (npm run imagine)</strong></summary>
+
+```
+======================================================================
+  OOBE Synapse × AceDataCloud — MCP Bridge Live Run
+======================================================================
+
+  [1/5] Created McpClientBridge (Synapse SDK)
+  [2/5] Connecting to mcp-midjourney via stdio...
+         Status: connected
+  [3/5] Discovered 15 tools from mcp-midjourney:
+         - midjourney_describe
+         - midjourney_edit
+         - midjourney_imagine
+         - midjourney_transform
+         - midjourney_blend
+         - midjourney_with_reference
+         - midjourney_list_actions
+         - midjourney_get_prompt_guide
+         - midjourney_list_transform_actions
+         - midjourney_get_seed
+         - midjourney_get_task
+         - midjourney_get_tasks_batch
+         - midjourney_translate
+         - midjourney_generate_video
+         - midjourney_extend_video
+
+  [4/5] Calling midjourney_imagine via MCP bridge...
+         Prompt: "A Solana-themed robot artist painting on a digital canvas, cyberpunk style, neon purple and green, futuristic art studio --ar 16:9 --v 6.1"
+         (this takes 30-90s)
+
+  [5/5] Result (97.9s):
+----------------------------------------------------------------------
+  Success:     true
+  Task ID:     cf0e2300-2cc4-475a-8ffb-b2bfe97e6aa2
+  Image ID:    1483514644613038080
+  Size:        1456×816
+  Image URL:   https://platform.cdn.acedata.cloud/midjourney/cf0e2300-2cc4-475a-8ffb-b2bfe97e6aa2.png?imageMogr2/thumbnail/!50p
+  Actions:     upscale1, upscale2, upscale3, upscale4, reroll, variation1, variation2, variation3, variation4
+
+  Flow: Synapse McpClientBridge → stdio → mcp-midjourney → api.acedata.cloud
+```
+
+</details>
 
 <details>
 <summary><strong>Output: MCP Bridge (npm run bridge)</strong></summary>
