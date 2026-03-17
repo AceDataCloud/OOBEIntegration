@@ -248,8 +248,7 @@ npm run agent         # Agent toolkit with capability summary
 npm run x402          # x402 micropayment flow
 ```
 
-<details>
-<summary><strong>Output: Live Image Generation (npm run imagine)</strong></summary>
+### Output: Live Image Generation (npm run imagine)
 
 ```
 ======================================================================
@@ -292,10 +291,7 @@ npm run x402          # x402 micropayment flow
   Flow: Synapse McpClientBridge → stdio → mcp-midjourney → api.acedata.cloud
 ```
 
-</details>
-
-<details>
-<summary><strong>Output: MCP Bridge (npm run bridge)</strong></summary>
+### Output: MCP Bridge (npm run bridge)
 
 ```
 ======================================================================
@@ -338,10 +334,7 @@ Setup:
   # Get one at: https://platform.acedata.cloud
 ```
 
-</details>
-
-<details>
-<summary><strong>Output: Agent Toolkit (npm run agent)</strong></summary>
+### Output: Agent Toolkit (npm run agent)
 
 ```
 ======================================================================
@@ -384,10 +377,7 @@ Scenario 3: Music NFT Agent
   One agent. One toolkit. Solana DeFi + AI generation + web search.
 ```
 
-</details>
-
-<details>
-<summary><strong>Output: x402 Payment Flow (npm run x402)</strong></summary>
+### Output: x402 Payment Flow (npm run x402)
 
 ```
 ======================================================================
@@ -441,8 +431,6 @@ Integration Value:
   │ Volume               │ 1000s of autonomous agents 24/7│
   └──────────────────────┴─────────────────────────────────┘
 ```
-
-</details>
 
 ## Get an AceDataCloud API Token
 
