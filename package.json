@@ -1,0 +1,29 @@
+{
+  "name": "oobe-acedatacloud-integration",
+  "version": "1.0.0",
+  "description": "OOBE Synapse × AceDataCloud: AI capabilities for autonomous Solana agents via MCP bridge",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "bridge": "tsx src/mcp-bridge.ts",
+    "agent": "tsx src/agent-toolkit.ts",
+    "x402": "tsx src/x402-facilitator.ts",
+    "imagine": "tsx src/imagine.ts"
+  },
+  "dependencies": {
+    "@langchain/core": "^0.3.80",
+    "@modelcontextprotocol/sdk": "^1.27.1",
+    "@oobe-protocol-labs/synapse-client-sdk": "^2.0.5",
+    "@solana/web3.js": "^1.95.0",
+    "dotenv": "^16.4.0",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
