@@ -8,7 +8,9 @@
     "bridge": "tsx src/mcp-bridge.ts",
     "agent": "tsx src/agent-toolkit.ts",
     "x402": "tsx src/x402-facilitator.ts",
-    "imagine": "tsx src/imagine.ts"
+    "imagine": "tsx src/imagine.ts",
+    "sap": "tsx src/sap-register.ts",
+    "sap:plan": "tsx src/sap-register.ts --plan"
   },
   "dependencies": {
     "@langchain/core": "^0.3.80",
