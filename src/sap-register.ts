@@ -14,10 +14,12 @@
  *   6. Verify registration by querying the on-chain profile
  *
  * Run:
- *   npm run sap            # Full on-chain registration (needs devnet SOL)
- *   npm run sap:plan       # Dry-run — show registration plan without transactions
+ *   npm run sap                    # Full registration on devnet (free SOL via airdrop)
+ *   npm run sap -- --mainnet       # Full registration on MAINNET (needs real SOL ~0.05)
+ *   npm run sap:plan               # Dry-run — show registration plan without transactions
+ *   npm run sap:mainnet            # Full registration on MAINNET (shortcut)
  *
- * Uses Solana devnet — no real SOL needed.
+ * Devnet is the default. Use --mainnet for production (Synapse Explorer visibility).
  */
 
 import { config } from "dotenv";
@@ -39,6 +41,8 @@ const BN = require("bn.js");
 const bs58 = require("bs58");
 
 const PLAN_MODE = process.argv.includes("--plan");
+const MAINNET_MODE = process.argv.includes("--mainnet");
+const NETWORK_LABEL = MAINNET_MODE ? "mainnet-beta" : "devnet";
 
 // AceDataCloud service catalog — what we register on-chain
 const ACEDATA_SERVICES = [
@@ -103,8 +107,9 @@ const ACEDATA_SERVICES = [
 async function main() {
   console.log("=".repeat(70));
   console.log("  OOBE Synapse × AceDataCloud — SAP On-Chain Registration");
-  console.log("  Register AceDataCloud as an AI agent on Solana (devnet)");
+  console.log(`  Register AceDataCloud as an AI agent on Solana (${NETWORK_LABEL})`);
   if (PLAN_MODE) console.log("  MODE: Plan (dry-run) — no transactions will be sent");
+  if (MAINNET_MODE) console.log("  MODE: MAINNET — real SOL will be spent!");
   console.log("=".repeat(70));
   console.log();
 
@@ -125,10 +130,10 @@ async function main() {
   console.log(`         Public key: ${keypair.publicKey.toBase58()}`);
   console.log();
 
-  // ─── Step 2: Connect to devnet ───
-  const sapConn = SapConnection.devnet();
+  // ─── Step 2: Connect to network ───
+  const sapConn = MAINNET_MODE ? SapConnection.mainnet() : SapConnection.devnet();
   const client = sapConn.fromKeypair(keypair);
-  console.log("  [2/7] Connected to Solana devnet");
+  console.log(`  [2/7] Connected to Solana ${NETWORK_LABEL}`);
   console.log(`         Program: SAPpUhsWLJG1FfkGRcXagEDMrMsWGjbky7AyhGpFETZ`);
   console.log();
 
@@ -209,26 +214,28 @@ async function main() {
     return;
   }
 
-  // ─── Step 3: Airdrop SOL (live mode) ───
-  console.log("  [3/7] Requesting devnet SOL airdrop...");
-
-  // Try multiple small airdrops with delay (devnet has strict rate limits)
-  for (let attempt = 1; attempt <= 3; attempt++) {
-    try {
-      const sig = await sapConn.connection.requestAirdrop(
-        keypair.publicKey,
-        1 * LAMPORTS_PER_SOL,
-      );
-      await sapConn.connection.confirmTransaction(sig, "confirmed");
-      console.log(`         Received 1 SOL (attempt ${attempt})`);
-      break;
-    } catch (e: any) {
-      if (attempt === 3) {
-        console.log(`         Airdrop failed after ${attempt} attempts: ${e.message?.slice(0, 80)}`);
-        console.log("         Checking existing balance...");
-      } else {
-        console.log(`         Attempt ${attempt} rate-limited, retrying in 5s...`);
-        await new Promise((r) => setTimeout(r, 5000));
+  // ─── Step 3: Fund wallet ───
+  if (MAINNET_MODE) {
+    console.log("  [3/7] Checking mainnet SOL balance (no airdrop on mainnet)...");
+  } else {
+    console.log("  [3/7] Requesting devnet SOL airdrop...");
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        const sig = await sapConn.connection.requestAirdrop(
+          keypair.publicKey,
+          1 * LAMPORTS_PER_SOL,
+        );
+        await sapConn.connection.confirmTransaction(sig, "confirmed");
+        console.log(`         Received 1 SOL (attempt ${attempt})`);
+        break;
+      } catch (e: any) {
+        if (attempt === 3) {
+          console.log(`         Airdrop failed after ${attempt} attempts: ${e.message?.slice(0, 80)}`);
+          console.log("         Checking existing balance...");
+        } else {
+          console.log(`         Attempt ${attempt} rate-limited, retrying in 5s...`);
+          await new Promise((r) => setTimeout(r, 5000));
+        }
       }
     }
   }
@@ -236,7 +243,12 @@ async function main() {
   const balance = await sapConn.connection.getBalance(keypair.publicKey);
   console.log(`         Balance: ${(balance / LAMPORTS_PER_SOL).toFixed(4)} SOL`);
   if (balance < 0.05 * LAMPORTS_PER_SOL) {
-    console.error("         Insufficient SOL. Try again in a minute (devnet rate limit).");
+    if (MAINNET_MODE) {
+      console.error(`         Insufficient SOL on mainnet. Send at least 0.05 SOL to:`);
+      console.error(`         ${keypair.publicKey.toBase58()}`);
+    } else {
+      console.error("         Insufficient SOL. Try again in a minute (devnet rate limit).");
+    }
     process.exit(1);
   }
   console.log();
@@ -244,53 +256,75 @@ async function main() {
   // ─── Step 4: Register AceDataCloud agent on-chain ───
   console.log("  [4/7] Registering AceDataCloud agent on-chain...");
 
-  // Only take first 8 capabilities (SAP limit: 10 per agent)
-  const capabilities = ACEDATA_SERVICES.slice(0, 8).map((s, i) => ({
-    name: s.capability,
-    version: 1,
-    metadata: JSON.stringify({ type: s.description.split(" ")[1] || "ai" }),
-  }));
+  // Check if agent already exists
+  const existingAgent = await client.agent.fetchNullable();
+  if (existingAgent) {
+    console.log(`         Agent already registered! Skipping registration.`);
+    console.log(`         Name: ${existingAgent.name}`);
+    console.log(`         Agent PDA: ${agentPda.toBase58()}`);
+  } else {
+    // Only take first 8 capabilities (SAP limit: 10 per agent)
+    const capabilities = ACEDATA_SERVICES.slice(0, 8).map((s) => ({
+      id: s.capability,
+      description: s.description,
+      protocolId: "acedata",
+      version: "1.0",
+    }));
 
-  const registerTx = await client.agent.register({
-    name: "AceDataCloud",
-    description: "30+ AI APIs: image, video, music, search, LLM chat via MCP",
-    agentUri: "https://api.acedata.cloud",
-    x402Endpoint: "https://facilitator.acedata.cloud/.well-known/x402",
-    capabilities,
-    pricing: [
-      {
-        tierId: "standard",
-        pricePerCall: new BN(1_000_000), // 0.001 SOL equivalent
-        tokenType: TokenType.Sol,
-        settlementMode: SettlementMode.X402,
-        rateLimit: 60,
-        maxCallsPerEpoch: new BN(100_000),
-      },
-    ],
-    protocols: ["mcp", "x402", "openai-compatible"],
-  });
+    const registerTx = await client.agent.register({
+      name: "AceDataCloud",
+      description: "30+ AI APIs: image, video, music, search, LLM chat via MCP",
+      agentUri: "https://api.acedata.cloud",
+      x402Endpoint: "https://facilitator.acedata.cloud/.well-known/x402",
+      capabilities,
+      pricing: [
+        {
+          tierId: "standard",
+          pricePerCall: new BN(1_000_000), // 0.001 SOL equivalent
+          minPricePerCall: null,
+          maxPricePerCall: null,
+          rateLimit: 60,
+          maxCallsPerSession: 100_000,
+          burstLimit: null,
+          tokenType: TokenType.Sol,
+          tokenMint: null,
+          tokenDecimals: 9,
+          settlementMode: SettlementMode.X402,
+          minEscrowDeposit: null,
+          batchIntervalSec: null,
+          volumeCurve: null,
+        },
+      ],
+      protocols: ["mcp", "x402", "openai-compatible"],
+    });
 
-  console.log(`         TX: ${registerTx}`);
-  console.log(`         Agent registered on-chain!`);
-  console.log();
-
-  console.log(`         Agent PDA: ${agentPda.toBase58()}`);
-  console.log();
+    console.log(`         TX: ${registerTx}`);
+    console.log(`         Agent registered on-chain!`);
+    console.log(`         Agent PDA: ${agentPda.toBase58()}`);
+  }
 
   // ─── Step 5: Publish tool descriptors ───
   console.log(`  [5/7] Publishing ${ACEDATA_SERVICES.length} tool descriptors...`);
   for (const service of ACEDATA_SERVICES) {
     try {
-      const tx = await client.tools.publishByName(agentPda, service.name, {
-        httpMethod: ToolHttpMethod.Post,
-        category: ToolCategory.Custom,
-        paramsCount: service.paramsCount,
-        requiredParams: service.requiredParams,
-      });
+      const tx = await client.tools.publishByName(
+        service.name,                           // toolName
+        "acedata",                              // protocolId
+        service.description,                    // description
+        JSON.stringify({ prompt: "string" }),    // inputSchema
+        JSON.stringify({ result: "object" }),    // outputSchema
+        1,                                      // httpMethod: POST = 1
+        0,                                      // category: Custom = 0
+        service.paramsCount,                    // paramsCount
+        service.requiredParams,                 // requiredParams
+        false,                                  // isCompound
+      );
       console.log(`         ✓ ${service.name} (tx: ${tx.slice(0, 16)}...)`);
     } catch (e: any) {
-      console.log(`         ✗ ${service.name}: ${e.message?.slice(0, 60)}`);
+      console.log(`         ✗ ${service.name}: ${e.message?.slice(0, 80)}`);
     }
+    // Small delay to avoid RPC rate limiting on mainnet
+    if (MAINNET_MODE) await new Promise((r) => setTimeout(r, 2000));
   }
   console.log();
 
@@ -301,41 +335,42 @@ async function main() {
   for (const service of ACEDATA_SERVICES.slice(0, 5)) {
     try {
       await client.indexing.initCapabilityIndex(service.capability);
-      await client.indexing.addToCapabilityIndex(agentPda, service.capability);
       console.log(`         ✓ capability: ${service.capability}`);
     } catch (e: any) {
-      // Index might already exist
+      // Index might already exist, try adding instead
       try {
-        await client.indexing.addToCapabilityIndex(agentPda, service.capability);
+        await client.indexing.addToCapabilityIndex(service.capability);
         console.log(`         ✓ capability: ${service.capability} (joined existing)`);
       } catch {
-        console.log(`         ✗ capability: ${service.capability}: ${e.message?.slice(0, 50)}`);
+        console.log(`         ✗ capability: ${service.capability}: ${e.message?.slice(0, 60)}`);
       }
     }
+    if (MAINNET_MODE) await new Promise((r) => setTimeout(r, 2000));
   }
 
   // Protocol indexes
   for (const protocol of ["mcp", "x402"]) {
     try {
       await client.indexing.initProtocolIndex(protocol);
-      await client.indexing.addToProtocolIndex(agentPda, protocol);
       console.log(`         ✓ protocol: ${protocol}`);
     } catch (e: any) {
       try {
-        await client.indexing.addToProtocolIndex(agentPda, protocol);
+        await client.indexing.addToProtocolIndex(protocol);
         console.log(`         ✓ protocol: ${protocol} (joined existing)`);
       } catch {
-        console.log(`         ✗ protocol: ${protocol}: ${e.message?.slice(0, 50)}`);
+        console.log(`         ✗ protocol: ${protocol}: ${e.message?.slice(0, 60)}`);
       }
     }
+    if (MAINNET_MODE) await new Promise((r) => setTimeout(r, 2000));
   }
   console.log();
 
   // ─── Step 7: Verify — query our own profile ───
   console.log("  [7/7] Verifying on-chain registration...");
   try {
-    const agent = await client.agent.fetch(agentPda);
-    const stats = await client.agent.fetchStats(agentPda);
+    const agent = await client.agent.fetch(); // defaults to connected wallet
+    const [derivedPda] = client.agent.deriveAgent();
+    const stats = await client.agent.fetchStats(derivedPda);
 
     console.log();
     console.log("  On-Chain Agent Profile:");
@@ -352,7 +387,8 @@ async function main() {
     console.log(`  Reputation:    ${stats.reputation?.toString() || "0"}`);
     console.log();
     console.log(`  Solana Explorer:`);
-    console.log(`  https://explorer.solana.com/address/${agentPda.toBase58()}?cluster=devnet`);
+    const clusterParam = MAINNET_MODE ? "" : "?cluster=devnet";
+    console.log(`  https://explorer.solana.com/address/${agentPda.toBase58()}${clusterParam}`);
   } catch (e: any) {
     console.log(`  Could not fetch profile: ${e.message?.slice(0, 80)}`);
   }

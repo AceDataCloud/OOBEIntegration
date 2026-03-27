@@ -10,7 +10,8 @@
     "x402": "tsx src/x402-facilitator.ts",
     "imagine": "tsx src/imagine.ts",
     "sap": "tsx src/sap-register.ts",
-    "sap:plan": "tsx src/sap-register.ts --plan"
+    "sap:plan": "tsx src/sap-register.ts --plan",
+    "sap:mainnet": "tsx src/sap-register.ts --mainnet"
   },
   "dependencies": {
     "@langchain/core": "^0.3.80",
