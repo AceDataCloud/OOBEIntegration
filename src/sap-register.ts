@@ -107,8 +107,11 @@ const ACEDATA_SERVICES = [
 async function main() {
   console.log("=".repeat(70));
   console.log("  OOBE Synapse × AceDataCloud — SAP On-Chain Registration");
-  console.log(`  Register AceDataCloud as an AI agent on Solana (${NETWORK_LABEL})`);
-  if (PLAN_MODE) console.log("  MODE: Plan (dry-run) — no transactions will be sent");
+  console.log(
+    `  Register AceDataCloud as an AI agent on Solana (${NETWORK_LABEL})`,
+  );
+  if (PLAN_MODE)
+    console.log("  MODE: Plan (dry-run) — no transactions will be sent");
   if (MAINNET_MODE) console.log("  MODE: MAINNET — real SOL will be spent!");
   console.log("=".repeat(70));
   console.log();
@@ -131,7 +134,9 @@ async function main() {
   console.log();
 
   // ─── Step 2: Connect to network ───
-  const sapConn = MAINNET_MODE ? SapConnection.mainnet() : SapConnection.devnet();
+  const sapConn = MAINNET_MODE
+    ? SapConnection.mainnet()
+    : SapConnection.devnet();
   const client = sapConn.fromKeypair(keypair);
   console.log(`  [2/7] Connected to Solana ${NETWORK_LABEL}`);
   console.log(`         Program: SAPpUhsWLJG1FfkGRcXagEDMrMsWGjbky7AyhGpFETZ`);
@@ -147,9 +152,13 @@ async function main() {
     console.log("  [4/7] Agent Registration Plan:");
     console.log("  " + "-".repeat(66));
     console.log(`  Name:          AceDataCloud`);
-    console.log(`  Description:   30+ AI APIs: image, video, music, search, LLM chat via MCP`);
+    console.log(
+      `  Description:   30+ AI APIs: image, video, music, search, LLM chat via MCP`,
+    );
     console.log(`  Agent URI:     https://api.acedata.cloud`);
-    console.log(`  x402 Endpoint: https://facilitator.acedata.cloud/.well-known/x402`);
+    console.log(
+      `  x402 Endpoint: https://facilitator.acedata.cloud/.well-known/x402`,
+    );
     console.log(`  Agent PDA:     ${agentPda.toBase58()}`);
     console.log(`  Protocols:     mcp, x402, openai-compatible`);
     console.log();
@@ -169,7 +178,9 @@ async function main() {
 
     console.log(`  [5/7] Tool Descriptors (${ACEDATA_SERVICES.length}):`);
     for (const s of ACEDATA_SERVICES) {
-      console.log(`    • ${s.name.padEnd(22)} POST  params:${s.paramsCount} required:${s.requiredParams}`);
+      console.log(
+        `    • ${s.name.padEnd(22)} POST  params:${s.paramsCount} required:${s.requiredParams}`,
+      );
     }
     console.log();
 
@@ -196,18 +207,30 @@ async function main() {
     }
     const txOff = ACEDATA_SERVICES.length + 2;
     for (const s of ACEDATA_SERVICES.slice(0, 5)) {
-      console.log(`  TX ${txOff}+:  initCapabilityIndex + addToCapabilityIndex — ${s.capability}`);
+      console.log(
+        `  TX ${txOff}+:  initCapabilityIndex + addToCapabilityIndex — ${s.capability}`,
+      );
     }
-    console.log(`  TX ${txOff}+:  initProtocolIndex + addToProtocolIndex — mcp`);
-    console.log(`  TX ${txOff}+:  initProtocolIndex + addToProtocolIndex — x402`);
+    console.log(
+      `  TX ${txOff}+:  initProtocolIndex + addToProtocolIndex — mcp`,
+    );
+    console.log(
+      `  TX ${txOff}+:  initProtocolIndex + addToProtocolIndex — x402`,
+    );
     console.log();
     console.log(`  Estimated cost: ~0.05 SOL (transaction fees)`);
-    console.log(`  Total transactions: ~${1 + ACEDATA_SERVICES.length + 5 * 2 + 2 * 2}`);
+    console.log(
+      `  Total transactions: ~${1 + ACEDATA_SERVICES.length + 5 * 2 + 2 * 2}`,
+    );
     console.log();
     console.log("  To execute for real:");
-    console.log("    1. Get devnet SOL:  solana airdrop 2 <pubkey> --url devnet");
+    console.log(
+      "    1. Get devnet SOL:  solana airdrop 2 <pubkey> --url devnet",
+    );
     console.log("       Or visit: https://faucet.solana.com");
-    console.log("    2. Save key:        echo 'SAP_PRIVATE_KEY=<base58>' >> .env");
+    console.log(
+      "    2. Save key:        echo 'SAP_PRIVATE_KEY=<base58>' >> .env",
+    );
     console.log("    3. Run:             npm run sap");
     console.log("  " + "=".repeat(66));
     console.log();
@@ -216,7 +239,9 @@ async function main() {
 
   // ─── Step 3: Fund wallet ───
   if (MAINNET_MODE) {
-    console.log("  [3/7] Checking mainnet SOL balance (no airdrop on mainnet)...");
+    console.log(
+      "  [3/7] Checking mainnet SOL balance (no airdrop on mainnet)...",
+    );
   } else {
     console.log("  [3/7] Requesting devnet SOL airdrop...");
     for (let attempt = 1; attempt <= 3; attempt++) {
@@ -230,10 +255,14 @@ async function main() {
         break;
       } catch (e: any) {
         if (attempt === 3) {
-          console.log(`         Airdrop failed after ${attempt} attempts: ${e.message?.slice(0, 80)}`);
+          console.log(
+            `         Airdrop failed after ${attempt} attempts: ${e.message?.slice(0, 80)}`,
+          );
           console.log("         Checking existing balance...");
         } else {
-          console.log(`         Attempt ${attempt} rate-limited, retrying in 5s...`);
+          console.log(
+            `         Attempt ${attempt} rate-limited, retrying in 5s...`,
+          );
           await new Promise((r) => setTimeout(r, 5000));
         }
       }
@@ -241,13 +270,19 @@ async function main() {
   }
 
   const balance = await sapConn.connection.getBalance(keypair.publicKey);
-  console.log(`         Balance: ${(balance / LAMPORTS_PER_SOL).toFixed(4)} SOL`);
+  console.log(
+    `         Balance: ${(balance / LAMPORTS_PER_SOL).toFixed(4)} SOL`,
+  );
   if (balance < 0.05 * LAMPORTS_PER_SOL) {
     if (MAINNET_MODE) {
-      console.error(`         Insufficient SOL on mainnet. Send at least 0.05 SOL to:`);
+      console.error(
+        `         Insufficient SOL on mainnet. Send at least 0.05 SOL to:`,
+      );
       console.error(`         ${keypair.publicKey.toBase58()}`);
     } else {
-      console.error("         Insufficient SOL. Try again in a minute (devnet rate limit).");
+      console.error(
+        "         Insufficient SOL. Try again in a minute (devnet rate limit).",
+      );
     }
     process.exit(1);
   }
@@ -304,20 +339,22 @@ async function main() {
   }
 
   // ─── Step 5: Publish tool descriptors ───
-  console.log(`  [5/7] Publishing ${ACEDATA_SERVICES.length} tool descriptors...`);
+  console.log(
+    `  [5/7] Publishing ${ACEDATA_SERVICES.length} tool descriptors...`,
+  );
   for (const service of ACEDATA_SERVICES) {
     try {
       const tx = await client.tools.publishByName(
-        service.name,                           // toolName
-        "acedata",                              // protocolId
-        service.description,                    // description
-        JSON.stringify({ prompt: "string" }),    // inputSchema
-        JSON.stringify({ result: "object" }),    // outputSchema
-        1,                                      // httpMethod: POST = 1
-        0,                                      // category: Custom = 0
-        service.paramsCount,                    // paramsCount
-        service.requiredParams,                 // requiredParams
-        false,                                  // isCompound
+        service.name, // toolName
+        "acedata", // protocolId
+        service.description, // description
+        JSON.stringify({ prompt: "string" }), // inputSchema
+        JSON.stringify({ result: "object" }), // outputSchema
+        1, // httpMethod: POST = 1
+        0, // category: Custom = 0
+        service.paramsCount, // paramsCount
+        service.requiredParams, // requiredParams
+        false, // isCompound
       );
       console.log(`         ✓ ${service.name} (tx: ${tx.slice(0, 16)}...)`);
     } catch (e: any) {
@@ -340,9 +377,13 @@ async function main() {
       // Index might already exist, try adding instead
       try {
         await client.indexing.addToCapabilityIndex(service.capability);
-        console.log(`         ✓ capability: ${service.capability} (joined existing)`);
+        console.log(
+          `         ✓ capability: ${service.capability} (joined existing)`,
+        );
       } catch {
-        console.log(`         ✗ capability: ${service.capability}: ${e.message?.slice(0, 60)}`);
+        console.log(
+          `         ✗ capability: ${service.capability}: ${e.message?.slice(0, 60)}`,
+        );
       }
     }
     if (MAINNET_MODE) await new Promise((r) => setTimeout(r, 2000));
@@ -358,7 +399,9 @@ async function main() {
         await client.indexing.addToProtocolIndex(protocol);
         console.log(`         ✓ protocol: ${protocol} (joined existing)`);
       } catch {
-        console.log(`         ✗ protocol: ${protocol}: ${e.message?.slice(0, 60)}`);
+        console.log(
+          `         ✗ protocol: ${protocol}: ${e.message?.slice(0, 60)}`,
+        );
       }
     }
     if (MAINNET_MODE) await new Promise((r) => setTimeout(r, 2000));
@@ -388,7 +431,9 @@ async function main() {
     console.log();
     console.log(`  Solana Explorer:`);
     const clusterParam = MAINNET_MODE ? "" : "?cluster=devnet";
-    console.log(`  https://explorer.solana.com/address/${agentPda.toBase58()}${clusterParam}`);
+    console.log(
+      `  https://explorer.solana.com/address/${agentPda.toBase58()}${clusterParam}`,
+    );
   } catch (e: any) {
     console.log(`  Could not fetch profile: ${e.message?.slice(0, 80)}`);
   }
@@ -398,8 +443,12 @@ async function main() {
   console.log("  What this means:");
   console.log("  • AceDataCloud is now a registered AI agent on Solana");
   console.log("  • Any Synapse agent can discover us via SAP protocol");
-  console.log("  • Our services are indexed by capability (image, music, search...)");
-  console.log("  • Agents can find us via: client.discovery.findAgentsByCapability('midjourney:imagine')");
+  console.log(
+    "  • Our services are indexed by capability (image, music, search...)",
+  );
+  console.log(
+    "  • Agents can find us via: client.discovery.findAgentsByCapability('midjourney:imagine')",
+  );
   console.log("  • Payments flow through x402 → facilitator.acedata.cloud");
   console.log("  " + "=".repeat(66));
   console.log();
