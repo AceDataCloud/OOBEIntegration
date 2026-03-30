@@ -45,11 +45,13 @@ const MAINNET_MODE = process.argv.includes("--mainnet");
 const NETWORK_LABEL = MAINNET_MODE ? "mainnet-beta" : "devnet";
 
 // AceDataCloud service catalog — what we register on-chain
+// Each service maps to a real API endpoint on api.acedata.cloud
 const ACEDATA_SERVICES = [
   {
     name: "midjourney-imagine",
     capability: "midjourney:imagine",
     description: "AI image generation via Midjourney",
+    endpoint: "/midjourney/imagine",
     paramsCount: 6,
     requiredParams: 1,
   },
@@ -57,6 +59,7 @@ const ACEDATA_SERVICES = [
     name: "suno-generate",
     capability: "suno:generate",
     description: "AI music generation via Suno",
+    endpoint: "/suno/audios",
     paramsCount: 5,
     requiredParams: 1,
   },
@@ -64,6 +67,7 @@ const ACEDATA_SERVICES = [
     name: "serp-search",
     capability: "serp:search",
     description: "Google web search, images, news, videos",
+    endpoint: "/serp/google",
     paramsCount: 4,
     requiredParams: 1,
   },
@@ -71,6 +75,7 @@ const ACEDATA_SERVICES = [
     name: "luma-video",
     capability: "luma:video",
     description: "AI video generation via Luma Dream Machine",
+    endpoint: "/luma/tasks",
     paramsCount: 4,
     requiredParams: 1,
   },
@@ -78,6 +83,7 @@ const ACEDATA_SERVICES = [
     name: "sora-video",
     capability: "sora:video",
     description: "AI video generation via OpenAI Sora",
+    endpoint: "/sora/videos",
     paramsCount: 4,
     requiredParams: 1,
   },
@@ -85,6 +91,7 @@ const ACEDATA_SERVICES = [
     name: "openai-chat",
     capability: "openai:chat",
     description: "LLM chat (GPT-4o, Claude, Gemini, DeepSeek, Grok)",
+    endpoint: "/v1/chat/completions",
     paramsCount: 5,
     requiredParams: 2,
   },
@@ -92,6 +99,7 @@ const ACEDATA_SERVICES = [
     name: "flux-generate",
     capability: "flux:generate",
     description: "AI image generation via Flux",
+    endpoint: "/flux/images",
     paramsCount: 4,
     requiredParams: 1,
   },
@@ -99,6 +107,7 @@ const ACEDATA_SERVICES = [
     name: "veo-video",
     capability: "veo:video",
     description: "AI video generation via Google Veo",
+    endpoint: "/veo/videos",
     paramsCount: 4,
     requiredParams: 1,
   },
