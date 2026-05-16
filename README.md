@@ -372,7 +372,7 @@ npm run x402          # x402 micropayment flow
     • serp:search            — Google web search, images, news, videos
     • luma:video             — AI video generation via Luma Dream Machine
     • sora:video             — AI video generation via OpenAI Sora
-    • openai:chat            — LLM chat (GPT-4o, Claude, Gemini, DeepSeek, Grok)
+    • openai:chat            — LLM chat (GPT-4o, Claude, Gemini, Kimi, Grok)
     • flux:generate          — AI image generation via Flux
     • veo:video              — AI video generation via Google Veo
 
