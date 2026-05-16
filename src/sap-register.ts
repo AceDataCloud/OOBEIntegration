@@ -90,7 +90,7 @@ const ACEDATA_SERVICES = [
   {
     name: "openai-chat",
     capability: "openai:chat",
-    description: "LLM chat (GPT-4o, Claude, Gemini, DeepSeek, Grok)",
+    description: "LLM chat (GPT-4o, Claude, Gemini, Kimi, Grok)",
     endpoint: "/v1/chat/completions",
     paramsCount: 5,
     requiredParams: 2,
